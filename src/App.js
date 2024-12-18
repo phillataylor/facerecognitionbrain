@@ -10,52 +10,6 @@ import ParticlesBg from 'particles-bg'; // https://www.npmjs.com/package/particl
 import './App.css';
 // import { findAllByDisplayValue } from '@testing-library/react';
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// In this section, we set the user authentication, user and app ID, model details, and the URL
-// of the image we want as an input. Change these strings to run your own example.
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-const returnClarifaiRequestOptions = imageURL => {
-  // Your PAT (Personal Access Token) can be found in the Account's Security section
-  const PAT = 'e73f8b1fbe624c0ba16a077feea6bd71';
-  // Specify the correct user_id/app_id pairings
-  // Since you're making inferences outside your app's scope
-  const USER_ID = 'philliptaylor';
-  const APP_ID = 'my-first-application-d1st4j';
-  // Change these to whatever model and image URL you want to use
-  const MODEL_ID = 'face-detection';
-  // const MODEL_VERSION_ID = 'aa7f35c01e0642fda5cf400f543e7c40';
-  const IMAGE_URL = imageURL;
-
-  const raw = JSON.stringify({
-    user_app_id: {
-      user_id: USER_ID,
-      app_id: APP_ID,
-    },
-    inputs: [
-      {
-        data: {
-          image: {
-            url: IMAGE_URL,
-          },
-        },
-      },
-    ],
-  });
-
-  const requestOptions = {
-    mode: 'cors',
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      Authorization: 'Key ' + PAT,
-    },
-    body: raw,
-  };
-
-  return requestOptions;
-};
-
 const initialState = {
   input: '',
   imageURL: '',
@@ -76,13 +30,6 @@ class App extends Component {
     super();
     this.state = initialState;
   }
-
-  // Testing
-  // componentDidMount() {
-  //   fetch('http://localhost:3000')
-  //     .then((response) => response.json())
-  //     .then(console.log);
-  // }
 
   loadUser = data => {
     this.setState({
@@ -125,20 +72,16 @@ class App extends Component {
     console.log('click');
     this.setState({ imageURL: this.state.input });
 
-    // app.models.predict('face-detection', this.state.input)
-
-    // fetch("/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
-    // .then(response => response.json())
-    //   .then(result => console.log(result))
-    //   .catch(error => console.log('error', error));
-    //result.outputs[0].data.regions[0].region_info.bounding_box
-
-    fetch(
-      '/v2/models/' + 'face-detection' + '/outputs',
-      returnClarifaiRequestOptions(this.state.input)
-    )
+    fetch('http://localhost:3000/imageurl', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        input: this.state.input,
+      }),
+    })
       .then(response => response.json())
       .then(result => {
+        // console.log('Result', result);
         if (result) {
           fetch('http://localhost:3000/image', {
             method: 'put',
